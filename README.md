@@ -1,10 +1,8 @@
 # code-book
 
-默认自动创建文件：`user_dir/.codebook/code-book.json`
-
 ## 👋Introduction
-- code-book 不对数据进行加密；不作为一个安全数据检索；仅用于本地便捷存储和查询；
-- 
+- code-book 不对数据进行加密；不作为一个安全数据存储；仅用于本地便捷存储和查询；
+- 默认自动创建文件：`user_dir/.codebook/code.json`
 
 ## 🔧Quickstart
 ```shell
