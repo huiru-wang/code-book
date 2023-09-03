@@ -2,6 +2,7 @@ import { app, BrowserWindow, screen, ipcMain } from 'electron'
 import path from 'node:path'
 import fs from 'fs';
 import os from 'os';
+import { createExampleData } from './example';
 
 // The built directory structure
 //
@@ -14,7 +15,8 @@ import os from 'os';
 // │
 process.env.DIST = path.join(__dirname, '../dist')
 process.env.PUBLIC = app.isPackaged ? process.env.DIST : path.join(process.env.DIST, '../public')
-
+const BASE_CODE_FOLDER_PATH = path.join(os.homedir(), '.codebook');
+const CODE_DATA_FILE_PATH = path.join(BASE_CODE_FOLDER_PATH, "code.json");
 
 let win: BrowserWindow | null
 // 🚧 Use ['ENV_NAME'] avoid vite:define plugin - Vite@2.x
@@ -52,28 +54,15 @@ function createWindow() {
 
   // read code data
   ipcMain.on('read-code-file', (event) => {
-    const userHomeDir = os.homedir();
-    const folderPath = ".codebook";
-    const filePath = path.join(userHomeDir, folderPath, "code-book.json");
-
-    const folderFullPath = path.join(userHomeDir, folderPath);
-    if (!fs.existsSync(folderFullPath)) {
-      fs.mkdirSync(folderFullPath);
+    if (!fs.existsSync(BASE_CODE_FOLDER_PATH)) {
+      fs.mkdirSync(BASE_CODE_FOLDER_PATH);
     }
 
-    fs.access(filePath, fs.constants.F_OK, (err) => {
+    fs.access(CODE_DATA_FILE_PATH, fs.constants.F_OK, (err) => {
       if (err) {
         // file not exist
-        const example = [{
-          itemId: 1,
-          itemKey: "Using double-click to copy the key or value",
-          itemValue: "Example Code",
-          description: "This is an example",
-          frequency: 0,
-          tags: ["example"]
-        }]
-        const exampleData: string = JSON.stringify(example);
-        fs.writeFile(filePath, exampleData, (createErr) => {
+        const exampleData: string = createExampleData();
+        fs.writeFile(CODE_DATA_FILE_PATH, exampleData, (createErr) => {
           if (createErr) {
             event.reply('read-code-file-response', { error: createErr.message });
           } else {
@@ -82,7 +71,7 @@ function createWindow() {
         });
       } else {
         // read
-        fs.readFile(filePath, 'utf-8', (readErr, data) => {
+        fs.readFile(CODE_DATA_FILE_PATH, 'utf-8', (readErr, data) => {
           if (readErr) {
             event.reply('read-code-file-response', { error: readErr.message });
           } else {
