@@ -1,0 +1,66 @@
+.code-cards {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin: 1em 1em;
+    width: 700px;
+    height: 400px;
+    align-content: space-between;
+    justify-content: flex-start;
+    align-content: flex-start;
+}
+
+.code-card {
+    user-select: none;
+    -webkit-user-select: none;
+    border-radius: 10px;
+    background: #e0e0e0;
+    box-shadow: 1px 1px 10px #b14040,
+        -5px -5px 3px #ffffff;
+    padding: 10px;
+    margin: 5px 5px;
+    white-space: nowrap;
+    /* 防止文本换行 */
+    overflow: hidden;
+    height: 3em;
+}
+
+.card-value input {
+    user-select: none;
+    /* 禁用文本选中 */
+    -webkit-user-drag: none;
+    /* 禁用文本拖拽（适用于WebKit浏览器，如Chrome和Safari） */
+    -webkit-touch-callout: none;
+    /* 禁用触摸长按弹出菜单（适用于WebKit浏览器） */
+    border: 1px solid transparent;
+    /* 透明边框 */
+}
+
+.code-card p {
+    margin-top: 0.1em;
+    margin-left: 0em;
+    margin-bottom: 0em;
+}
+
+.code-lable {
+    display: inline-block;
+    text-align: right;
+}
+
+.code-conceal {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 10px;
+    height: 10px;
+    cursor: pointer;
+}
+
+.visible {
+    background: url('../../assets/visible.svg') no-repeat;
+}
+
+.invisible {
+    background: url('../../assets/invisible.svg') no-repeat;
+}

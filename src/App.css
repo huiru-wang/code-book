@@ -1,0 +1,12 @@
+#root {
+  width: 500px;
+  height: 400px;
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
