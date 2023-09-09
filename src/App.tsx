@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { CodeCards, CodeItem } from './component/CodeCards';
 import { SearchBar } from './component/SearchBar';
 import { CodeTags, ItemTag } from './component/CodeTags';
+import { OptionButtons, CopyModeOptions } from './component/OptionButtons';
 const { ipcRenderer } = window.require('electron');
 
 function App() {
@@ -16,6 +17,12 @@ function App() {
 
   const [, setErrorMessage] = useState('');
 
+  const [, setShowMode] = useState(true);
+
+  const [copyMode, setCopyMode] = useState(CopyModeOptions.SINGLE);
+
+  const [typeMode, setTypeMode] = useState("text");
+
   useEffect(() => {
     ipcRenderer.send('read-code-file');
     // 监听主进程发送的消息
@@ -23,7 +30,6 @@ function App() {
       if (error) {
         setErrorMessage(error);
       } else {
-        console.log(data);
         const codes: CodeItem[] = JSON.parse(data);
         const tags = Array.from(new Set(codes.flatMap(codeItem => codeItem.tags)));
         const itemTags: ItemTag[] = tags.map(tag => ({ tag: tag, selected: false }))
@@ -57,6 +63,15 @@ function App() {
     }
   }
 
+  const toggleShowMode = (showMode: boolean) => {
+    setShowMode(!showMode);
+    setTypeMode(showMode ? "text" : "password");
+  }
+
+  const toggleCopyMode = (copyMode: CopyModeOptions) => {
+    setCopyMode(copyMode);
+  }
+
   // TODO: form add new code item
   // const addNewCode = (itemKey: string, itemValue: string, description: string | undefined) => {
   //   const newId: number = allCoedData.sort((a, b) => a.itemId - b.itemId)[0].itemId + 1;
@@ -80,9 +95,11 @@ function App() {
     <>
       <SearchBar onSearch={onSearch} />
 
+      <OptionButtons toggleShowMode={toggleShowMode} toggleCopyMode={toggleCopyMode} />
+
       <CodeTags itemTags={allTags} onTagSelected={onTagSelected} />
 
-      <CodeCards codeItems={codeData} />
+      <CodeCards codeItems={codeData} typeMode={typeMode} copyMode={copyMode} />
     </>
   )
 }

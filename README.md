@@ -13,6 +13,7 @@ npm run dev
 ## 🚀TODO
 - 添加、删除接口；
 - 文件批量导入；
-- 数据显示模式：明文/隐藏；
+- 数据显示模式：明文/隐藏；(Done)
 - 搜索方式优化，当前并不是最优结果靠前；
-- Double-Click复制方式：`key` / `value` / `mixed`
+- Double-Click复制方式：`key`-`value` / `mixed`；（Done）
+- 安装、卸载、进程优化；

@@ -24,7 +24,7 @@
 .form-control {
     position: relative;
     --width-of-input: 700px;
-    margin: 1em 1.3em;
+    margin: 0.5em 1.3em;
 }
 
 .input-alt {

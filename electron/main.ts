@@ -28,7 +28,7 @@ function createWindow() {
     height: 850,
     x: screen.getPrimaryDisplay().bounds.width - 700,
     y: screen.getPrimaryDisplay().bounds.height - 870,
-    resizable: false,
+    resizable: true,
     maximizable: false,
     autoHideMenuBar: true,
     icon: path.join(process.env.PUBLIC, '4391378.png'),
@@ -46,7 +46,7 @@ function createWindow() {
 
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL)
-    // win.webContents.toggleDevTools()
+    win.webContents.toggleDevTools()
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(process.env.DIST, 'index.html'))
