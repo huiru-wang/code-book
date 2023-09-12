@@ -1,8 +1,6 @@
 import { app, BrowserWindow, screen, ipcMain } from 'electron'
 import path from 'node:path'
-import fs from 'fs';
-import os from 'os';
-import { createExampleData } from './example';
+import { flushConfig, flushData, flushTags, readCodeData, readCodeTags, readCodeSettings } from './codeFile';
 
 // The built directory structure
 //
@@ -15,8 +13,6 @@ import { createExampleData } from './example';
 // │
 process.env.DIST = path.join(__dirname, '../dist')
 process.env.PUBLIC = app.isPackaged ? process.env.DIST : path.join(process.env.DIST, '../public')
-const BASE_CODE_FOLDER_PATH = path.join(os.homedir(), '.codebook');
-const CODE_DATA_FILE_PATH = path.join(BASE_CODE_FOLDER_PATH, "code.json");
 
 let win: BrowserWindow | null
 // 🚧 Use ['ENV_NAME'] avoid vite:define plugin - Vite@2.x
@@ -52,35 +48,18 @@ function createWindow() {
     win.loadFile(path.join(process.env.DIST, 'index.html'))
   }
 
-  // read code data
-  ipcMain.on('read-code-file', (event) => {
-    if (!fs.existsSync(BASE_CODE_FOLDER_PATH)) {
-      fs.mkdirSync(BASE_CODE_FOLDER_PATH);
-    }
+  // read data
+  ipcMain.on('read-data', event => readCodeData(event));
 
-    fs.access(CODE_DATA_FILE_PATH, fs.constants.F_OK, (err) => {
-      if (err) {
-        // file not exist
-        const exampleData: string = createExampleData();
-        fs.writeFile(CODE_DATA_FILE_PATH, exampleData, (createErr) => {
-          if (createErr) {
-            event.reply('read-code-file-response', { error: createErr.message });
-          } else {
-            event.reply('read-code-file-response', { data: exampleData });
-          }
-        });
-      } else {
-        // read
-        fs.readFile(CODE_DATA_FILE_PATH, 'utf-8', (readErr, data) => {
-          if (readErr) {
-            event.reply('read-code-file-response', { error: readErr.message });
-          } else {
-            event.reply('read-code-file-response', { data });
-          }
-        });
-      }
-    });
-  });
+  ipcMain.on('read-tags', event => readCodeTags(event));
+
+  ipcMain.on('read-settings', event => readCodeSettings(event));
+
+  ipcMain.on('flush-data', (event, codeData) => flushData(event, codeData));
+
+  ipcMain.on('flush-tags', (event, tags) => flushTags(event, tags));
+
+  ipcMain.on('flush-settings', (event, settings) => flushConfig(event, settings));
 }
 
 app.on('window-all-closed', () => {

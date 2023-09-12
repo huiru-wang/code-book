@@ -12,6 +12,7 @@
 }
 
 .code-card {
+    position: relative;
     user-select: none;
     -webkit-user-select: none;
     border-radius: 10px;
@@ -27,12 +28,19 @@
 }
 
 .card-value input {
+    background-color: transparent;
     user-select: none;
     /* 禁用文本选中 */
     -webkit-user-drag: none;
     /* 禁用文本拖拽（适用于WebKit浏览器，如Chrome和Safari） */
     -webkit-touch-callout: none;
     /* 禁用触摸长按弹出菜单（适用于WebKit浏览器） */
+    border: 1px solid transparent;
+    /* 透明边框 */
+}
+
+.new-card input {
+    margin-top: 0em;
     border: 1px solid transparent;
     /* 透明边框 */
 }
@@ -63,4 +71,13 @@
 
 .invisible {
     background: url('../../assets/invisible.svg') no-repeat;
+}
+
+.tag-delete {
+    cursor: pointer;
+    position: absolute;
+    top: -0.5em;
+    right: -0.3em;
+    padding: 5px;
+    border-radius: 50%;
 }

@@ -1,38 +1,87 @@
 import "./style.css"
-import { useState } from "react";
+import { GlobalContext } from '../../Context'
+import { useContext, useEffect } from "react";
+const { ipcRenderer } = window.require('electron');
 
-export enum CopyModeOptions {
-    SINGLE, MIXED
-}
+export const OptionButtons = () => {
 
+    const { showMode, setShowMode } = useContext(GlobalContext);
 
-export const OptionButtons: React.FC<{ toggleShowMode: (showMode: boolean) => void, toggleCopyMode: (copyMode: CopyModeOptions) => void }> = ({ toggleShowMode, toggleCopyMode }) => {
+    const { singleMode, setSingleMode } = useContext(GlobalContext);
 
-    const [showMode, setShowMode] = useState(true);
+    const { addMode, setAddMode, clearMode, setClearMode } = useContext(GlobalContext);
 
-    const [copyMode, setCopyMode] = useState(true);
-
-    const handleShowMode = () => {
-        toggleShowMode(!showMode)
-        setShowMode(!showMode);
+    const toggleShowMode = () => {
+        const currentStatus = !showMode;
+        setShowMode(currentStatus);
+        flushSettings(currentStatus, singleMode);
     }
 
-    const handleCopyMode = () => {
-        setCopyMode(!copyMode);
-        toggleCopyMode(copyMode ? CopyModeOptions.SINGLE : CopyModeOptions.MIXED);
+    const toggleSingleMode = () => {
+        const currentStatus = !singleMode;
+        setSingleMode(currentStatus);
+        flushSettings(showMode, currentStatus);
+    }
+
+    const flushSettings = (showMode: boolean, singleMode: boolean) => {
+        const settings = {
+            "showMode": showMode,
+            "singleMode": singleMode
+        }
+        ipcRenderer.send('flush-settings', JSON.stringify(settings));
+    }
+
+    const handleAddMode = (e: React.MouseEvent<HTMLLabelElement, MouseEvent>) => {
+        if (!clearMode) {
+            setAddMode(!addMode);
+        } else {
+            e.preventDefault();
+        }
+    }
+
+    const handleClearMode = (e: React.MouseEvent<HTMLLabelElement, MouseEvent>) => {
+        if (!addMode) {
+            setClearMode(!clearMode);
+        } else {
+            e.preventDefault();
+        }
     }
 
     return (
         <>
             <div className="code-button">
-                <div className="checkbox-wrapper-25" >
-                    {/* <label className="code-label">ShowMode</label> */}
-                    <input type="checkbox" checked={showMode} onChange={handleShowMode} />
+                <div className="switch-button">
+                    <div className="checkbox-wrapper-25" >
+                        <input type="checkbox" checked={showMode} onClick={toggleShowMode} readOnly />
+                    </div>
+                    <div className="checkbox-wrapper-25">
+                        <input type="checkbox" checked={singleMode} onClick={toggleSingleMode} readOnly />
+                    </div>
                 </div>
-                <div className="checkbox-wrapper-25">
-                    {/* <label className="code-label">CopyMode</label> */}
-                    <input type="checkbox" checked={copyMode} onChange={handleCopyMode} />
+                {/* 添加模式、删除模式 */}
+                <div className="mode-button">
+                    <div className="checkbox-wrapper-8">
+                        <input type="checkbox" id="cb3-0" className="tgl tgl-skewed" checked={addMode} readOnly />
+                        <label
+                            htmlFor="cb3-0"
+                            data-tg-on="Done"
+                            data-tg-off="Add"
+                            className="tgl-btn"
+                            onClick={(e) => handleAddMode(e)}
+                        ></label>
+                    </div>
+                    <div className="checkbox-wrapper-8">
+                        <input type="checkbox" id="cb3-1" className="tgl tgl-skewed" checked={clearMode} readOnly />
+                        <label
+                            htmlFor="cb3-1"
+                            data-tg-on="Done"
+                            data-tg-off="Clear"
+                            className="tgl-btn"
+                            onClick={(e) => handleClearMode(e)}
+                        ></label>
+                    </div>
                 </div>
+
             </div>
         </>
     );

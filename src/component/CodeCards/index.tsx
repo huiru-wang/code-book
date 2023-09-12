@@ -1,36 +1,64 @@
-import { CopyModeOptions } from '../OptionButtons'
+import { GlobalContext } from '../../Context'
+import { useContext, useState, useEffect, useRef } from "react";
 import './style.css'
 
 export interface CodeItem {
     itemId: number;
     itemKey: string;
     itemValue: string;
-    description: string | undefined;
+    description?: string;
     frequency: number;
-    tags: string[];
+    tag: string;
 }
 
 enum CopyTarget {
     KEY, VALUE
 }
 
+export const CodeCards: React.FC<{
+    codeItems: CodeItem[],
+    deleteCodeItem: (id: number) => void
+    addNewCodeItem: (keyItem: string, valueItem: string) => void
+    isTagSelected: boolean
+}> = ({ codeItems, deleteCodeItem, addNewCodeItem, isTagSelected }) => {
 
-export const CodeCards: React.FC<{ codeItems: CodeItem[], typeMode: string, copyMode: CopyModeOptions }> = ({ codeItems, typeMode, copyMode }) => {
+    const { showMode, singleMode, clearMode, addMode } = useContext(GlobalContext);
 
-    // const deleteCodeItem = () => {
-    //     return;
-    // }
+    const [addStatus, setAddStatus] = useState(false);
+
+    const keyInput = useRef(null);
+
+    const valueInput = useRef(null);
+
+    useEffect(() => {
+        setAddStatus(false)
+    }, [addMode])
+
 
     const copyTextToClipboard = (codeItem: CodeItem, target: CopyTarget) => {
         const text = target === CopyTarget.KEY ? codeItem.itemKey : codeItem.itemValue;
-        switch (copyMode) {
-            case CopyModeOptions.SINGLE:
-                navigator.clipboard.writeText(text);
-                break;
-            case CopyModeOptions.MIXED:
-                navigator.clipboard.writeText(codeItem.itemKey + " : " + codeItem.itemValue);
-                break;
+        if (singleMode) {
+            navigator.clipboard.writeText(text);
+        } else {
+            navigator.clipboard.writeText(codeItem.itemKey + " : " + codeItem.itemValue);
         }
+    }
+
+    const handleKeyKeyDown = (event) => {
+        if (event.key === 'Enter' || event.key === 'NumpadEnter') {
+            valueInput.current.focus();
+        }
+    }
+
+    const handleValueKeyDown = (event) => {
+        if (event.key === 'Enter' || event.key === 'NumpadEnter') {
+            addNewCodeItem(keyInput.current.value, valueInput.current.value);
+            setAddStatus(false);
+        }
+    }
+
+    const toggleAddCodeItem = (e) => {
+        setAddStatus(true);
     }
 
     return (
@@ -48,7 +76,7 @@ export const CodeCards: React.FC<{ codeItems: CodeItem[], typeMode: string, copy
 
                             <div className='card-value' onDoubleClick={() => copyTextToClipboard(item, CopyTarget.VALUE)}>
                                 <input
-                                    type={typeMode}
+                                    type={showMode ? "text" : "password"}
                                     disabled={true}
                                     value={item.itemValue}
                                     readOnly
@@ -56,9 +84,42 @@ export const CodeCards: React.FC<{ codeItems: CodeItem[], typeMode: string, copy
                                 />
                                 <div className="invisible"></div>
                             </div>
+                            {clearMode ? <span className="tag-delete" onClick={() => deleteCodeItem(item.itemId)}>❌</span> : <></>}
                         </div>
                     )
             }
+            {
+                addMode &&
+                !addStatus &&
+                isTagSelected &&
+                <label className="customCheckBoxWrapper" style={{ marginLeft: "5px" }}>
+                    <div className="customCheckBox" style={{ backgroundColor: "rgba(43, 107, 190, 0.16)", marginTop: "1.3em" }} onClick={toggleAddCodeItem}>
+                        <div className="inner">➕</div>
+                    </div>
+                </label>
+            }
+            {
+                addMode &&
+                addStatus &&
+                <div className="code-card" >
+                    <div className='new-card'>
+                        <input
+                            type="text"
+                            ref={keyInput}
+                            onKeyDown={handleKeyKeyDown}
+                        />
+                    </div>
+
+                    <div className='new-card'>
+                        <input
+                            type="text"
+                            ref={valueInput}
+                            onKeyDown={handleValueKeyDown}
+                        />
+                    </div>
+                </div>
+            }
+
         </div>
     )
 }

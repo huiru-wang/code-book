@@ -1,11 +1,12 @@
 
 import './App.css'
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { CodeCards, CodeItem } from './component/CodeCards';
 import { SearchBar } from './component/SearchBar';
 import { CodeTags, ItemTag } from './component/CodeTags';
-import { OptionButtons, CopyModeOptions } from './component/OptionButtons';
+import { OptionButtons } from './component/OptionButtons';
 const { ipcRenderer } = window.require('electron');
+import { GlobalContext } from './Context';
 
 function App() {
 
@@ -15,35 +16,45 @@ function App() {
 
   const [allTags, setAllTags] = useState<ItemTag[]>([]);
 
-  const [, setErrorMessage] = useState('');
+  const { codeChangeStatus, tagChangeStatus } = useContext(GlobalContext)
 
-  const [, setShowMode] = useState(true);
-
-  const [copyMode, setCopyMode] = useState(CopyModeOptions.SINGLE);
-
-  const [typeMode, setTypeMode] = useState("text");
+  const [selectedTag, setSelectedTag] = useState('')
 
   useEffect(() => {
-    ipcRenderer.send('read-code-file');
+    ipcRenderer.send('read-data');
+    ipcRenderer.send('read-tags');
+
     // 监听主进程发送的消息
-    ipcRenderer.on('read-code-file-response', (_, { data, error }) => {
-      if (error) {
-        setErrorMessage(error);
-      } else {
-        const codes: CodeItem[] = JSON.parse(data);
-        const tags = Array.from(new Set(codes.flatMap(codeItem => codeItem.tags)));
-        const itemTags: ItemTag[] = tags.map(tag => ({ tag: tag, selected: false }))
-        setCodeData(codes);
-        setAllCodeData(codes);
-        setAllTags(itemTags);
-      }
+    ipcRenderer.on('read-data-response', (_, { data }) => {
+      const codes: CodeItem[] = JSON.parse(data);
+      setCodeData(codes);
+      setAllCodeData(codes);
     });
+
+    ipcRenderer.on("read-tags-response", (_, { data }) => {
+      console.log(data);
+      const tags: string[] = JSON.parse(data);
+      const itemTags: ItemTag[] = tags.map(t => ({ tag: t, selected: false }))
+      setAllTags(itemTags);
+    })
+
     return () => {
-      ipcRenderer.removeAllListeners('read-code-file-response');
+      ipcRenderer.removeAllListeners('read-data-response');
+      ipcRenderer.removeAllListeners('read-tags-response');
     };
   }, []);
 
-  // TODO: 搜索模式：key、value、mixed
+  useEffect(() => {
+    console.log("code status", codeChangeStatus);
+    // flush
+  }, [codeChangeStatus])
+
+  useEffect(() => {
+    console.log("tag status", tagChangeStatus);
+    // flush
+  }, [tagChangeStatus])
+
+  // search keywords
   const onSearch = (currentSearchTerm: string): void => {
     if (currentSearchTerm.length !== 0) {
       const targetTerm = currentSearchTerm.toLowerCase();
@@ -54,52 +65,78 @@ function App() {
     }
   }
 
-  const onTagSelected = (selectedTags: string[]): void => {
-    if (selectedTags.length !== 0) {
-      const filteredCodeData = allCoedData.filter(codeItem => codeItem.tags.find(tag => selectedTags.includes(tag)) !== undefined)
+  // select tag
+  const onTagSelected = (selectedTag: string): void => {
+    setSelectedTag(selectedTag)
+    if (selectedTag !== '' && selectedTag !== undefined) {
+      const filteredCodeData = allCoedData.filter(codeItem => codeItem.tag === selectedTag)
       setCodeData(filteredCodeData);
     } else {
       setCodeData(allCoedData)
     }
   }
 
-  const toggleShowMode = (showMode: boolean) => {
-    setShowMode(!showMode);
-    setTypeMode(showMode ? "text" : "password");
+  const addNewTag = (newTag: string): void => {
+    if (newTag !== '' && newTag !== undefined) {
+      console.log(newTag);
+      allTags.push({ tag: newTag, selected: false });
+      setAllTags(allTags)
+      ipcRenderer.send('flush-tags', JSON.stringify(allTags));
+    }
   }
 
-  const toggleCopyMode = (copyMode: CopyModeOptions) => {
-    setCopyMode(copyMode);
+  const addNewCodeItem = (itemKey: string, itemValue: string): void => {
+    const newId: number = allCoedData.sort((a, b) => b.itemId - a.itemId)[0].itemId + 1;
+    const newCodeItem: CodeItem = {
+      itemId: newId,
+      itemKey: itemKey,
+      itemValue: itemValue,
+      frequency: 0,
+      tag: selectedTag,
+    };
+    allCoedData.push(newCodeItem);
+    setAllCodeData(allCoedData);
+
+    codeData.push(newCodeItem)
+    setCodeData(codeData);
+    ipcRenderer.send('flush-data', JSON.stringify(allCoedData));
   }
 
-  // TODO: form add new code item
-  // const addNewCode = (itemKey: string, itemValue: string, description: string | undefined) => {
-  //   const newId: number = allCoedData.sort((a, b) => a.itemId - b.itemId)[0].itemId + 1;
-  //   const newCodeItem: CodeItem = {
-  //     itemId: newId,
-  //     itemKey: itemKey,
-  //     itemValue: itemValue,
-  //     description: description,
-  //     frequency: 0,
-  //     tags: [],
-  //   };
-  //   allCoedData.push(newCodeItem);
-  //   setAllCodeData(allCoedData);
-  // }
+  // clear one code item
+  const deleteCodeItem = (target: number) => {
+    const filteredData = codeData.filter(item => item.itemId !== target);
+    setCodeData(filteredData);
 
-  // const deleteCodeItem = (itemKey: string) => {
-  //   return;
-  // }
+    const allData = allCoedData.filter(item => item.itemId !== target);
+    setAllCodeData(allData);
+
+    ipcRenderer.send('flush-data', JSON.stringify(allData));
+  }
+
+  const deleteTag = (target: string) => {
+    const filteredTags = allTags.filter(item => item.tag.toLowerCase() !== target.toLowerCase());
+    const tags = filteredTags.map(itemTag => itemTag.tag)
+    setAllTags(filteredTags)
+
+    const filteredCodeData = codeData.filter(item => item.tag !== target);
+    setCodeData(filteredCodeData);
+
+    const filteredAllData = allCoedData.filter(item => item.tag !== target);
+    setAllCodeData(filteredAllData);
+
+    ipcRenderer.send('flush-data', JSON.stringify(filteredAllData));
+    ipcRenderer.send('flush-tags', JSON.stringify(tags));
+  }
 
   return (
     <>
       <SearchBar onSearch={onSearch} />
 
-      <OptionButtons toggleShowMode={toggleShowMode} toggleCopyMode={toggleCopyMode} />
+      <OptionButtons />
 
-      <CodeTags itemTags={allTags} onTagSelected={onTagSelected} />
+      <CodeTags itemTags={allTags} onTagSelected={onTagSelected} deleteTag={deleteTag} addNewTag={addNewTag} />
 
-      <CodeCards codeItems={codeData} typeMode={typeMode} copyMode={copyMode} />
+      <CodeCards codeItems={codeData} deleteCodeItem={deleteCodeItem} addNewCodeItem={addNewCodeItem} isTagSelected={selectedTag !== '' && selectedTag !== undefined} />
     </>
   )
 }
