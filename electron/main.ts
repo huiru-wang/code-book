@@ -42,7 +42,7 @@ function createWindow() {
 
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL)
-    win.webContents.toggleDevTools()
+    // win.webContents.toggleDevTools()
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(process.env.DIST, 'index.html'))
@@ -55,6 +55,7 @@ function createWindow() {
 
   ipcMain.on('read-settings', event => readCodeSettings(event));
 
+  // flush data
   ipcMain.on('flush-data', (event, codeData) => flushData(event, codeData));
 
   ipcMain.on('flush-tags', (event, tags) => flushTags(event, tags));

@@ -6,7 +6,6 @@ import { SearchBar } from './component/SearchBar';
 import { CodeTags, ItemTag } from './component/CodeTags';
 import { OptionButtons } from './component/OptionButtons';
 const { ipcRenderer } = window.require('electron');
-import { GlobalContext } from './Context';
 
 function App() {
 
@@ -15,8 +14,6 @@ function App() {
   const [allCoedData, setAllCodeData] = useState<CodeItem[]>([]);
 
   const [allTags, setAllTags] = useState<ItemTag[]>([]);
-
-  const { codeChangeStatus } = useContext(GlobalContext)
 
   const [selectedTag, setSelectedTag] = useState('')
 
@@ -32,7 +29,6 @@ function App() {
     });
 
     ipcRenderer.on("read-tags-response", (_, { data }) => {
-      console.log(data);
       const tags: string[] = JSON.parse(data);
       const itemTags: ItemTag[] = tags.map(t => ({ tag: t, selected: false }))
       setAllTags(itemTags);
@@ -68,7 +64,6 @@ function App() {
 
   const addNewTag = (newTag: string): void => {
     if (newTag !== '' && newTag !== undefined) {
-      console.log(newTag);
       allTags.push({ tag: newTag, selected: false });
       setAllTags(allTags)
       ipcRenderer.send('flush-tags', JSON.stringify(allTags));
