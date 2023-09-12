@@ -26,9 +26,9 @@ export const CodeCards: React.FC<{
 
     const [addStatus, setAddStatus] = useState(false);
 
-    const keyInput = useRef(null);
+    const keyInput = useRef<HTMLInputElement>(null);
 
-    const valueInput = useRef(null);
+    const valueInput = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         setAddStatus(false)
@@ -44,20 +44,22 @@ export const CodeCards: React.FC<{
         }
     }
 
-    const handleKeyKeyDown = (event) => {
+    const handleKeyKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter' || event.key === 'NumpadEnter') {
-            valueInput.current.focus();
+            valueInput.current?.focus();
         }
     }
 
-    const handleValueKeyDown = (event) => {
+    const handleValueKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter' || event.key === 'NumpadEnter') {
-            addNewCodeItem(keyInput.current.value, valueInput.current.value);
+            if (keyInput.current && valueInput.current) {
+                addNewCodeItem(keyInput.current?.value, valueInput.current?.value);
+            }
             setAddStatus(false);
         }
     }
 
-    const toggleAddCodeItem = (e) => {
+    const toggleAddCodeItem = () => {
         setAddStatus(true);
     }
 
@@ -106,7 +108,7 @@ export const CodeCards: React.FC<{
                         <input
                             type="text"
                             ref={keyInput}
-                            onKeyDown={handleKeyKeyDown}
+                            onKeyDown={(e) => handleKeyKeyDown(e)}
                         />
                     </div>
 
@@ -114,7 +116,7 @@ export const CodeCards: React.FC<{
                         <input
                             type="text"
                             ref={valueInput}
-                            onKeyDown={handleValueKeyDown}
+                            onKeyDown={(e) => handleValueKeyDown(e)}
                         />
                     </div>
                 </div>

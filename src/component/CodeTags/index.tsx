@@ -16,9 +16,11 @@ export const CodeTags: React.FC<
 
         const [addStatus, setAddStatus] = useState(false);
 
-        const { clearMode, addMode, setTagChangeStatus } = useContext(GlobalContext);
+        const { clearMode, addMode } = useContext(GlobalContext);
 
-        const tagInputRef = useRef(null);
+        const tagInputRef = useRef<HTMLInputElement>(null);
+
+        const [valueInput] = useState('');
 
         useEffect(() => {
             setItemTagList(itemTags)
@@ -59,9 +61,10 @@ export const CodeTags: React.FC<
 
         const handleFinish = (event: React.KeyboardEvent<HTMLInputElement>) => {
             if (event.key === 'Enter' || event.key === 'NumpadEnter') {
-                addNewTag(event.target.value);
+                if (!valueInput && valueInput !== '') {
+                    addNewTag(valueInput);
+                }
                 setAddStatus(false);
-                setTagChangeStatus(true);
             }
         }
 
@@ -104,6 +107,7 @@ export const CodeTags: React.FC<
                         type="text"
                         className="customTagInput"
                         ref={tagInputRef}
+                        value={valueInput}
                         onKeyDown={(e) => handleFinish(e)}
                     />
                 }

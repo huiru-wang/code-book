@@ -16,7 +16,7 @@ function App() {
 
   const [allTags, setAllTags] = useState<ItemTag[]>([]);
 
-  const { codeChangeStatus, tagChangeStatus } = useContext(GlobalContext)
+  const { codeChangeStatus } = useContext(GlobalContext)
 
   const [selectedTag, setSelectedTag] = useState('')
 
@@ -43,16 +43,6 @@ function App() {
       ipcRenderer.removeAllListeners('read-tags-response');
     };
   }, []);
-
-  useEffect(() => {
-    console.log("code status", codeChangeStatus);
-    // flush
-  }, [codeChangeStatus])
-
-  useEffect(() => {
-    console.log("tag status", tagChangeStatus);
-    // flush
-  }, [tagChangeStatus])
 
   // search keywords
   const onSearch = (currentSearchTerm: string): void => {

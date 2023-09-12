@@ -1,9 +1,21 @@
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useEffect, useState, ReactNode } from 'react';
 const { ipcRenderer } = window.require('electron');
 
-export const GlobalContext = createContext({});
+export const GlobalContext = createContext<{
+    addMode: boolean
+    clearMode: boolean
+    codeChangeStatus: boolean
+    showMode: boolean,
+    singleMode: boolean,
+}>({
+    addMode: false,
+    clearMode: false,
+    codeChangeStatus: false,
+    showMode: false,
+    singleMode: false
+});
 
-export const GlobalProvider: React.FC<JSX.Element> = ({ children }) => {
+export const GlobalProvider: React.FC = ({ children }) => {
 
     const [addMode, setAddMode] = useState(false);
 
@@ -11,13 +23,12 @@ export const GlobalProvider: React.FC<JSX.Element> = ({ children }) => {
 
     const [codeChangeStatus, setCodeChangeStatus] = useState(false);
 
-    const [tagChangeStatus, setTagChangeStatus] = useState(false);
 
     const [showMode, setShowMode] = useState(false);
 
     const [singleMode, setSingleMode] = useState(false);
 
-    const context = { showMode, setShowMode, singleMode, setSingleMode, addMode, setAddMode, clearMode, setClearMode, codeChangeStatus, setCodeChangeStatus, tagChangeStatus, setTagChangeStatus }
+    const context = { showMode, setShowMode, singleMode, setSingleMode, addMode, setAddMode, clearMode, setClearMode, codeChangeStatus, setCodeChangeStatus }
 
     useEffect(() => {
         ipcRenderer.send('read-settings');
