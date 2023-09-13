@@ -7,7 +7,7 @@ React初学项目；可用于日常使用；
 - 默认自动创建文件：`user_dir/.codebook/code.json`
 
 ## 🔧Quickstart
-1. 可直接体验[Realase](https://github.com/huiru-wang/code-book/releases/tag/v0.0.2)
+1. 可直接体验 [Windows - Realase](https://github.com/huiru-wang/code-book/releases/tag/v0.0.2)
 2. 本地启动
 ```shell
 npm install
