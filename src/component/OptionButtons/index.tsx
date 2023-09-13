@@ -1,6 +1,6 @@
 import "./style.css"
 import { GlobalContext } from '../../Context'
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 const { ipcRenderer } = window.require('electron');
 
 export const OptionButtons = () => {

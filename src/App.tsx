@@ -1,6 +1,6 @@
 
 import './App.css'
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { CodeCards, CodeItem } from './component/CodeCards';
 import { SearchBar } from './component/SearchBar';
 import { CodeTags, ItemTag } from './component/CodeTags';
@@ -65,8 +65,9 @@ function App() {
   const addNewTag = (newTag: string): void => {
     if (newTag !== '' && newTag !== undefined) {
       allTags.push({ tag: newTag, selected: false });
-      setAllTags(allTags)
-      ipcRenderer.send('flush-tags', JSON.stringify(allTags));
+      setAllTags(allTags);
+      const tags: string[] = allTags.map(tagItem => tagItem.tag);
+      ipcRenderer.send('flush-tags', JSON.stringify(tags));
     }
   }
 

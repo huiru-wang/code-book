@@ -1,5 +1,5 @@
 import ReactDOM from 'react-dom/client'
-import { GlobalProvider } from './Context.tsx';
+import { GlobalProvider } from './Context.jsx';
 import App from './App.tsx'
 import './index.css'
 

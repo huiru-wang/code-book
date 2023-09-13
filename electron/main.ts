@@ -42,7 +42,7 @@ function createWindow() {
 
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL)
-    // win.webContents.toggleDevTools()
+    win.webContents.toggleDevTools()
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(process.env.DIST, 'index.html'))
@@ -65,6 +65,21 @@ function createWindow() {
 
 app.on('window-all-closed', () => {
   win = null
+  process.exit(0);
 })
 
 app.whenReady().then(createWindow)
+
+// 在 macOS 上，当所有窗口都关闭时退出应用程序
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+// 创建新窗口（在 macOS 上，通常在单击应用程序图标后）
+app.on('activate', () => {
+  if (win === null) {
+    createWindow();
+  }
+});
