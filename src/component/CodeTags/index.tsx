@@ -24,10 +24,6 @@ export const CodeTags: React.FC<
             setItemTagList(itemTags)
         }, [itemTags])
 
-        useEffect(() => {
-            setAddStatus(false)
-        }, [addMode])
-
         const handleClick = (itemTag: ItemTag) => {
             const tag = itemTag.tag;
             const updateItemTags: ItemTag[] = itemTagList.map(codeTag => {
@@ -60,6 +56,11 @@ export const CodeTags: React.FC<
         const handleFinish = (event: React.KeyboardEvent<HTMLInputElement>) => {
             if (event.key === 'Enter' || event.key === 'NumpadEnter') {
                 if (tagInputRef.current) {
+                    const newTag = tagInputRef.current.value;
+                    const existingTag = itemTagList.filter(item => item.tag === newTag);
+                    if (existingTag.length > 0) {
+                        return;
+                    }
                     addNewTag(tagInputRef.current.value);
                 }
                 setAddStatus(false);

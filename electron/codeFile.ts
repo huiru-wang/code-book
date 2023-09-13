@@ -7,7 +7,7 @@ interface CodeItem {
     itemId: number;
     itemKey: string;
     itemValue: string;
-    description: string | undefined;
+    description?: string | undefined;
     frequency: number;
     tag: string;
 }
@@ -22,19 +22,31 @@ export const createExampleData = (): string => {
     const example: CodeItem[] = [
         {
             itemId: 1,
-            itemKey: "Using double-click to copy the key or value",
-            itemValue: "This is your example code",
-            description: "This is an example",
+            itemKey: "Hello Code Book👋",
+            itemValue: "Hello World",
             frequency: 0,
-            tag: "example"
+            tag: "Hello World"
         },
         {
             itemId: 2,
-            itemKey: "Hello Code Book👋",
-            itemValue: "Hello World",
-            description: "This is an example",
+            itemKey: "Double-click to copy the key or value",
+            itemValue: "This is your example code",
             frequency: 0,
-            tag: "Hello World"
+            tag: "Instruction"
+        },
+        {
+            itemId: 3,
+            itemKey: "Change CopyMode to copy key-value pairs at the same time",
+            itemValue: "This is your example code",
+            frequency: 0,
+            tag: "Instruction"
+        },
+        {
+            itemId: 4,
+            itemKey: "Change ShowMode to Hide or display value",
+            itemValue: "This is your example code",
+            frequency: 0,
+            tag: "Instruction"
         }
     ];
     return JSON.stringify(example);
