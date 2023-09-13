@@ -15,6 +15,6 @@ npm run dev
 ```
 
 ## 🚀Function
-- 添加、删除功能；
-- 数据显示模式：明文/隐藏；
+- 对于Key-Value添加、删除、删除、通过Tag筛选；
+- 明文/隐藏数据显示模式；
 - Double-Click复制方式：`key`-`value` / `mixed`；
