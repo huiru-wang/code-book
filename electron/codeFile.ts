@@ -14,7 +14,7 @@ interface CodeItem {
 
 // 样例数据
 export const createExampleTags = (): string => {
-    const tags: string[] = ["example", "Hello World"];
+    const tags: string[] = ["Instruction", "Hello World"];
     return JSON.stringify(tags);
 }
 
