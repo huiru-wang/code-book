@@ -27,13 +27,15 @@ function createWindow() {
     resizable: false,
     maximizable: false,
     autoHideMenuBar: true,
-    icon: path.join(process.env.PUBLIC, '4391378.png'),
+    icon: path.join(process.env.PUBLIC, 'icon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: true,
       contextIsolation: false
     },
   })
+
+  app.setName('CodeBook');
 
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {
