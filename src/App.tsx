@@ -43,6 +43,8 @@ function App() {
   // search keywords
   const onSearch = (currentSearchTerm: string): void => {
     if (currentSearchTerm.length !== 0) {
+      const clearSelectedTags = allTags.map(item => ({ tag: item.tag, selected: false }));
+      setAllTags(clearSelectedTags);
       const targetTerm = currentSearchTerm.toLowerCase();
       const filteredCodeData = allCoedData.filter(item => item.itemKey.toLowerCase().includes(targetTerm))
       setCodeData(filteredCodeData)
