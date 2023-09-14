@@ -2,7 +2,7 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    gap: 15px;
+    gap: 0.1em;
     margin: 1em 1em;
     width: 700px;
     height: 400px;
@@ -25,6 +25,12 @@
     /* 防止文本换行 */
     overflow: hidden;
     height: 3em;
+    width: 10em;
+}
+.card-key {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .card-value input {
@@ -39,38 +45,21 @@
     /* 透明边框 */
 }
 
+.new-card {
+    margin: 0em 0em;
+    width: 8em;
+}
+
 .new-card input {
-    margin-top: 0em;
+    margin: 0em 0em;
     border: 1px solid transparent;
     /* 透明边框 */
+    width: 11.5em;
 }
 
 .code-card p {
-    margin-top: 0.1em;
-    margin-left: 0em;
-    margin-bottom: 0em;
-}
-
-.code-lable {
-    display: inline-block;
-    text-align: right;
-}
-
-.code-conceal {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 10px;
-    height: 10px;
-    cursor: pointer;
-}
-
-.visible {
-    background: url('../../assets/visible.svg') no-repeat;
-}
-
-.invisible {
-    background: url('../../assets/invisible.svg') no-repeat;
+    margin: 0em 0em;
+    width: 11.5em;
 }
 
 .tag-delete {
