@@ -82,9 +82,7 @@ export const CodeCards: React.FC<{
                                     disabled={true}
                                     value={item.itemValue}
                                     readOnly
-                                //style={{ width: `${item.itemValue.length * 5}px` }}
                                 />
-                                <div className="invisible"></div>
                             </div>
                             {clearMode ? <span className="tag-delete" onClick={() => deleteCodeItem(item.itemId)}>❌</span> : <></>}
                         </div>
