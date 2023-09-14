@@ -74,7 +74,10 @@ function App() {
   }
 
   const addNewCodeItem = (itemKey: string, itemValue: string): void => {
-    const newId: number = allCoedData.sort((a, b) => b.itemId - a.itemId)[0].itemId + 1;
+    let newId = 1;
+    if (allCoedData.length > 0) {
+      newId = allCoedData.sort((a, b) => b.itemId - a.itemId)[0].itemId + 1;
+    }
     const newCodeItem: CodeItem = {
       itemId: newId,
       itemKey: itemKey,
