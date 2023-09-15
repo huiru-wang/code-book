@@ -1,26 +1,15 @@
 import { GlobalContext } from '../../Context'
 import { useContext, useState, useEffect, useRef } from "react";
+import { CodeItem, CopyTarget } from '../types';
 import './style.css'
 
-export interface CodeItem {
-    itemId: number;
-    itemKey: string;
-    itemValue: string;
-    description?: string;
-    frequency: number;
-    tag: string;
-}
-
-enum CopyTarget {
-    KEY, VALUE
-}
 
 export const CodeCards: React.FC<{
-    codeItems: CodeItem[],
+    codeItems: CodeItem[]
     deleteCodeItem: (id: number) => void
     addNewCodeItem: (keyItem: string, valueItem: string) => void
-    isTagSelected: boolean
-}> = ({ codeItems, deleteCodeItem, addNewCodeItem, isTagSelected }) => {
+    selectedTag: string
+}> = ({ codeItems, deleteCodeItem, addNewCodeItem, selectedTag }) => {
 
     const { showMode, singleMode, clearMode, addMode } = useContext(GlobalContext);
 
@@ -31,9 +20,8 @@ export const CodeCards: React.FC<{
     const valueInput = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        setAddStatus(false)
+        setAddStatus(false);
     }, [addMode])
-
 
     const copyTextToClipboard = (codeItem: CodeItem, target: CopyTarget) => {
         const text = target === CopyTarget.KEY ? codeItem.itemKey : codeItem.itemValue;
@@ -67,11 +55,11 @@ export const CodeCards: React.FC<{
         <div className="code-cards">
             {
                 codeItems
-                    ?.sort((a: CodeItem, b: CodeItem) => b.frequency - a.frequency).slice(0, 10)
+                    .slice(0, 9)
                     .map(item =>
                         <div className="code-card" key={item.itemId}>
                             <div className='card-key' onDoubleClick={() => copyTextToClipboard(item, CopyTarget.KEY)}>
-                                <p>
+                                <p className="hoverable-paragraph">
                                     {item.itemKey}
                                 </p>
                             </div>
@@ -91,7 +79,7 @@ export const CodeCards: React.FC<{
             {
                 addMode &&
                 !addStatus &&
-                isTagSelected &&
+                (selectedTag !== '' && selectedTag !== undefined) &&
                 <label className="customCheckBoxWrapper" style={{ marginLeft: "5px" }}>
                     <div className="customCheckBox" style={{ backgroundColor: "rgba(43, 107, 190, 0.16)", marginTop: "1.3em" }} onClick={toggleAddCodeItem}>
                         <div className="inner">➕</div>
@@ -101,6 +89,7 @@ export const CodeCards: React.FC<{
             {
                 addMode &&
                 addStatus &&
+                (selectedTag !== '' && selectedTag !== undefined) &&
                 <div className="code-card" >
                     <div className='new-card'>
                         <input

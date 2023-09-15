@@ -1,6 +1,6 @@
 import { app, BrowserWindow, screen, ipcMain } from 'electron'
 import path from 'node:path'
-import { flushConfig, flushData, flushTags, readCodeData, readCodeTags, readCodeSettings } from './codeFile';
+import { flushData, readCodeData, readCodeSettings } from './codeFile';
 
 // The built directory structure
 //
@@ -21,9 +21,9 @@ const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL']
 function createWindow() {
   win = new BrowserWindow({
     width: 700,
-    height: 850,
+    height: 700,
     x: screen.getPrimaryDisplay().bounds.width - 700,
-    y: screen.getPrimaryDisplay().bounds.height - 870,
+    y: screen.getPrimaryDisplay().bounds.height - 700,
     resizable: false,
     maximizable: false,
     autoHideMenuBar: true,
@@ -53,16 +53,10 @@ function createWindow() {
   // read data
   ipcMain.on('read-data', event => readCodeData(event));
 
-  ipcMain.on('read-tags', event => readCodeTags(event));
-
   ipcMain.on('read-settings', event => readCodeSettings(event));
 
   // flush data
-  ipcMain.on('flush-data', (event, codeData) => flushData(event, codeData));
-
-  ipcMain.on('flush-tags', (event, tags) => flushTags(event, tags));
-
-  ipcMain.on('flush-settings', (event, settings) => flushConfig(event, settings));
+  ipcMain.on('flush-data', (_, dataType, codeData) => flushData(dataType, codeData));
 }
 
 app.on('window-all-closed', () => {

@@ -4,11 +4,12 @@
     flex-wrap: wrap;
     gap: 0.5em;
     margin: 1em 1em;
-    width: 700px;
+    width: 670px;
     height: 400px;
     align-content: space-between;
     justify-content: flex-start;
     align-content: flex-start;
+    font-size: smaller;
 }
 
 .code-card {
@@ -25,8 +26,8 @@
     /* 防止文本换行 */
     overflow: hidden;
     height: 3em;
-    width: 11.5em;
 }
+
 .card-key {
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -47,19 +48,24 @@
 
 .new-card {
     margin: 0em 0em;
-    width: 8em;
 }
 
 .new-card input {
     margin: 0em 0em;
     border: 1px solid transparent;
     /* 透明边框 */
-    width: 11.5em;
 }
 
 .code-card p {
     margin: 0em 0em;
-    width: 11.5em;
+    display: -webkit-box;
+    /* -webkit-line-clamp: 1; */
+    /* 能够显示的行数，超出部分用...表示*/
+    -webkit-box-orient: vertical;
+}
+
+.code-card p:hover {
+    max-width: none;
 }
 
 .tag-delete {

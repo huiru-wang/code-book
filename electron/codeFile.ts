@@ -2,51 +2,35 @@ import path from 'node:path'
 import fs from 'fs';
 import os from 'os';
 import { IpcMainEvent } from 'electron'
+import { CodeItem, DataType } from '../src/component/types';
 
-interface CodeItem {
-    itemId: number;
-    itemKey: string;
-    itemValue: string;
-    description?: string | undefined;
-    frequency: number;
-    tag: string;
-}
 
 // 样例数据
-export const createExampleTags = (): string => {
-    const tags: string[] = ["Instruction", "Hello World"];
-    return JSON.stringify(tags);
-}
-
 export const createExampleData = (): string => {
     const example: CodeItem[] = [
         {
             itemId: 1,
             itemKey: "Hello Code Book👋",
             itemValue: "Hello World",
-            frequency: 0,
             tag: "Hello World"
         },
         {
             itemId: 2,
-            itemKey: "Double-click to copy the key or value",
-            itemValue: "This is your example code",
-            frequency: 0,
-            tag: "Instruction"
+            itemKey: "Double-click to copy the key or value.",
+            itemValue: "This is the value.",
+            tag: "Double-click"
         },
         {
             itemId: 3,
-            itemKey: "Change CopyMode to copy key-value pairs at the same time",
-            itemValue: "This is your example code",
-            frequency: 0,
-            tag: "Instruction"
+            itemKey: "Toggle second button and copy.",
+            itemValue: "This is the value.",
+            tag: "CopyMode"
         },
         {
             itemId: 4,
-            itemKey: "Change ShowMode to Hide or display value",
-            itemValue: "This is your example code",
-            frequency: 0,
-            tag: "Instruction"
+            itemKey: "Toggle first button.",
+            itemValue: "Now you can see me.",
+            tag: "ShowMode"
         }
     ];
     return JSON.stringify(example);
@@ -54,15 +38,15 @@ export const createExampleData = (): string => {
 
 const createExampleSettings = (): string => {
     const example = {
-        "showMode": true,
-        "singleMode": true
+        "showMode": false,
+        "singleMode": false
     };
     return JSON.stringify(example);
 }
 
 const BASE_CODE_FOLDER_PATH = path.join(os.homedir(), '.codebook');
 const CODE_DATA_FILE_PATH = path.join(BASE_CODE_FOLDER_PATH, "code.json");
-const CODE_TAGS_FILE_PATH = path.join(BASE_CODE_FOLDER_PATH, "tags.json");
+const TAGS_FILE_PATH = path.join(BASE_CODE_FOLDER_PATH, "tags.json");
 const SETTINGS_FILE_PATH = path.join(BASE_CODE_FOLDER_PATH, "settings.json");
 
 // 读取/初始化数据文件
@@ -71,43 +55,35 @@ export const readCodeData = (event: IpcMainEvent) => {
         fs.mkdirSync(BASE_CODE_FOLDER_PATH);
     }
 
-    fs.access(CODE_DATA_FILE_PATH, fs.constants.F_OK, (err) => {
-        if (err) {
-            // file not exist
-            const exampleData: string = createExampleData();
-            fs.writeFile(CODE_DATA_FILE_PATH, exampleData, () => {
-                event.reply('read-data-response', { data: exampleData });
-            });
-        } else {
-            // read
-            fs.readFile(CODE_DATA_FILE_PATH, 'utf-8', (_, data) => {
-                event.reply('read-data-response', { data });
-            });
-        }
-        console.log("read code file");
-    });
-}
+    const data = {}
 
-// 读取/初始化Tag文件
-export const readCodeTags = (event: IpcMainEvent) => {
-    if (!fs.existsSync(BASE_CODE_FOLDER_PATH)) {
-        fs.mkdirSync(BASE_CODE_FOLDER_PATH);
+    try {
+        fs.accessSync(CODE_DATA_FILE_PATH, fs.constants.F_OK)
+    } catch (error) {
+        const exampleData: string = createExampleData();
+        fs.writeFileSync(CODE_DATA_FILE_PATH, exampleData);
     }
 
-    fs.access(CODE_TAGS_FILE_PATH, fs.constants.F_OK, (err) => {
-        if (err) {
-            const exampleTags: string = createExampleTags();
-            fs.writeFile(CODE_TAGS_FILE_PATH, exampleTags, () => {
-                event.reply('read-tags-response', { data: exampleTags });
-            });
-        } else {
-            fs.readFile(CODE_TAGS_FILE_PATH, 'utf-8', (_, data) => {
-                event.reply('read-tags-response', { data });
-            });
-        }
-        console.log("read tags file");
-    });
+    try {
+        fs.accessSync(TAGS_FILE_PATH, fs.constants.F_OK)
+    } catch (error) {
+        fs.writeFileSync(TAGS_FILE_PATH, "[]");
+    }
+
+    const codeData: string = fs.readFileSync(CODE_DATA_FILE_PATH, 'utf-8');
+    const tags: string = fs.readFileSync(TAGS_FILE_PATH, 'utf-8');
+
+    const tagSet: Set<string> = new Set(JSON.parse(tags));
+    const codes: CodeItem[] = JSON.parse(codeData);
+    codes.forEach(item => tagSet.add(item.tag))
+
+    data["tags"] = tagSet;
+    data["codes"] = codes;
+
+    event.reply('read-data-response', { data });
+    flushData(DataType.TAG, JSON.stringify([...tagSet]))
 }
+
 
 // 读取/初始化settings
 export const readCodeSettings = (event: IpcMainEvent) => {
@@ -130,35 +106,29 @@ export const readCodeSettings = (event: IpcMainEvent) => {
     });
 }
 
+
+
 // flush Data
-export const flushData = (event: IpcMainEvent, codeData: string) => {
+export const flushData = (dataType: DataType, data: string) => {
     if (!fs.existsSync(BASE_CODE_FOLDER_PATH)) {
         fs.mkdirSync(BASE_CODE_FOLDER_PATH);
     }
-    fs.writeFile(CODE_DATA_FILE_PATH, codeData, () => {
-        event.reply('write-data-response', { done: true });
+    let path = "";
+    switch (dataType) {
+        case DataType.CODE:
+            path = CODE_DATA_FILE_PATH;
+            break;
+        case DataType.TAG:
+            path = TAGS_FILE_PATH;
+            break;
+        case DataType.SETTINGS:
+            path = SETTINGS_FILE_PATH
+            break;
+        default:
+            console.log("Data Not Supported");
+            break;
+    }
+    fs.writeFile(path, data, (_) => {
     });
     console.log("flush code file");
-}
-
-// flush Tags
-export const flushTags = (event: IpcMainEvent, tags: string) => {
-    if (!fs.existsSync(BASE_CODE_FOLDER_PATH)) {
-        fs.mkdirSync(BASE_CODE_FOLDER_PATH);
-    }
-    fs.writeFile(CODE_TAGS_FILE_PATH, tags, () => {
-        event.reply('write-tags-response', { done: true });
-    });
-    console.log("flush tags file");
-}
-
-// flush Config
-export const flushConfig = (event: IpcMainEvent, settings: string) => {
-    if (!fs.existsSync(BASE_CODE_FOLDER_PATH)) {
-        fs.mkdirSync(BASE_CODE_FOLDER_PATH);
-    }
-    fs.writeFile(SETTINGS_FILE_PATH, settings, () => {
-        event.reply('write-settings-response', { done: true });
-    });
-    console.log("flush settings file");
 }

@@ -1,17 +1,18 @@
 
 import './App.css'
 import { useState, useEffect } from "react";
-import { CodeCards, CodeItem } from './component/CodeCards';
+import { CodeCards } from './component/CodeCards';
 import { SearchBar } from './component/SearchBar';
-import { CodeTags, ItemTag } from './component/CodeTags';
+import { CodeTags } from './component/CodeTags';
 import { OptionButtons } from './component/OptionButtons';
+import { CodeItem, ItemTag, DataType } from './component/types';
 const { ipcRenderer } = window.require('electron');
 
 function App() {
 
   const [codeData, setCodeData] = useState<CodeItem[]>([]);
 
-  const [allCoedData, setAllCodeData] = useState<CodeItem[]>([]);
+  const [allCodeData, setAllCodeData] = useState<CodeItem[]>([]);
 
   const [allTags, setAllTags] = useState<ItemTag[]>([]);
 
@@ -23,20 +24,16 @@ function App() {
 
     // 监听主进程发送的消息
     ipcRenderer.on('read-data-response', (_, { data }) => {
-      const codes: CodeItem[] = JSON.parse(data);
+      const codes: CodeItem[] = data["codes"];
+      const tags: string[] = [...data["tags"]];
+      const itemTags: ItemTag[] = tags.map(t => ({ tag: t, selected: false }))
+      setAllTags(itemTags);
       setCodeData(codes);
       setAllCodeData(codes);
     });
 
-    ipcRenderer.on("read-tags-response", (_, { data }) => {
-      const tags: string[] = JSON.parse(data);
-      const itemTags: ItemTag[] = tags.map(t => ({ tag: t, selected: false }))
-      setAllTags(itemTags);
-    })
-
     return () => {
       ipcRenderer.removeAllListeners('read-data-response');
-      ipcRenderer.removeAllListeners('read-tags-response');
     };
   }, []);
 
@@ -46,10 +43,10 @@ function App() {
       const clearSelectedTags = allTags.map(item => ({ tag: item.tag, selected: false }));
       setAllTags(clearSelectedTags);
       const targetTerm = currentSearchTerm.toLowerCase();
-      const filteredCodeData = allCoedData.filter(item => item.itemKey.toLowerCase().includes(targetTerm))
+      const filteredCodeData = allCodeData.filter(item => item.itemKey.toLowerCase().includes(targetTerm))
       setCodeData(filteredCodeData)
     } else {
-      setCodeData(allCoedData)
+      setCodeData(allCodeData)
     }
   }
 
@@ -57,38 +54,37 @@ function App() {
   const onTagSelected = (selectedTag: string): void => {
     setSelectedTag(selectedTag)
     if (selectedTag !== '' && selectedTag !== undefined) {
-      const filteredCodeData = allCoedData.filter(codeItem => codeItem.tag === selectedTag)
+      const filteredCodeData = allCodeData.filter(codeItem => codeItem.tag === selectedTag)
       setCodeData(filteredCodeData);
     } else {
-      setCodeData(allCoedData)
+      setCodeData(allCodeData)
     }
   }
+
 
   const addNewTag = (newTag: string): void => {
     if (newTag !== '' && newTag !== undefined) {
       const newTagItem: ItemTag = { tag: newTag, selected: false }
       setAllTags(preTags => [...preTags, newTagItem]);
       const tags: string[] = allTags.map(tagItem => tagItem.tag);
-      ipcRenderer.send('flush-tags', JSON.stringify(tags));
+      ipcRenderer.send('flush-data', DataType.TAG, JSON.stringify(tags));
     }
   }
 
   const addNewCodeItem = (itemKey: string, itemValue: string): void => {
     let newId = 1;
-    if (allCoedData.length > 0) {
-      newId = allCoedData.sort((a, b) => b.itemId - a.itemId)[0].itemId + 1;
+    if (allCodeData.length > 0) {
+      newId = allCodeData.sort((a, b) => b.itemId - a.itemId)[0].itemId + 1;
     }
     const newCodeItem: CodeItem = {
       itemId: newId,
       itemKey: itemKey,
       itemValue: itemValue,
-      frequency: 0,
       tag: selectedTag,
     };
     setCodeData(preData => [...preData, newCodeItem]);
     setAllCodeData(preData => [...preData, newCodeItem]);
-    ipcRenderer.send('flush-data', JSON.stringify(allCoedData));
-
+    ipcRenderer.send('flush-data', DataType.CODE, JSON.stringify(allCodeData));
   }
 
   // clear one code item
@@ -96,10 +92,10 @@ function App() {
     const filteredData = codeData.filter(item => item.itemId !== target);
     setCodeData(filteredData);
 
-    const allData = allCoedData.filter(item => item.itemId !== target);
+    const allData = allCodeData.filter(item => item.itemId !== target);
     setAllCodeData(allData);
 
-    ipcRenderer.send('flush-data', JSON.stringify(allData));
+    ipcRenderer.send('flush-data', DataType.CODE, JSON.stringify(allData));
   }
 
   const deleteTag = (target: string) => {
@@ -110,22 +106,34 @@ function App() {
     const filteredCodeData = codeData.filter(item => item.tag !== target);
     setCodeData(filteredCodeData);
 
-    const filteredAllData = allCoedData.filter(item => item.tag !== target);
+    const filteredAllData = allCodeData.filter(item => item.tag !== target);
     setAllCodeData(filteredAllData);
 
-    ipcRenderer.send('flush-data', JSON.stringify(filteredAllData));
-    ipcRenderer.send('flush-tags', JSON.stringify(tags));
+    ipcRenderer.send('flush-data', DataType.CODE, JSON.stringify(filteredAllData));
+    ipcRenderer.send('flush-data', DataType.TAG, JSON.stringify(tags));
   }
 
   return (
     <>
-      <SearchBar onSearch={onSearch} />
+      <SearchBar
+        onSearch={onSearch}
+      />
 
       <OptionButtons />
 
-      <CodeTags itemTags={allTags} onTagSelected={onTagSelected} deleteTag={deleteTag} addNewTag={addNewTag} />
+      <CodeTags
+        itemTags={allTags}
+        onTagSelected={onTagSelected}
+        deleteTag={deleteTag}
+        addNewTag={addNewTag}
+      />
 
-      <CodeCards codeItems={codeData} deleteCodeItem={deleteCodeItem} addNewCodeItem={addNewCodeItem} isTagSelected={selectedTag !== '' && selectedTag !== undefined} />
+      <CodeCards
+        codeItems={codeData}
+        deleteCodeItem={deleteCodeItem}
+        addNewCodeItem={addNewCodeItem}
+        selectedTag={selectedTag}
+      />
     </>
   )
 }

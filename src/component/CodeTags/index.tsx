@@ -1,11 +1,8 @@
-import "./style.css"
-import { GlobalContext } from '../../Context'
+import "./style.css";
+import { GlobalContext } from '../../Context';
 import { useState, useEffect, useContext, useRef } from 'react';
+import { ItemTag } from '../types';
 
-export interface ItemTag {
-    tag: string,
-    selected: boolean
-}
 
 export const CodeTags: React.FC<
     { itemTags: ItemTag[], onTagSelected: (selectedTag: string) => void, deleteTag: (tag: string) => void, addNewTag: (newTag: string) => void }> =
@@ -21,8 +18,12 @@ export const CodeTags: React.FC<
         const tagInputRef = useRef<HTMLInputElement>(null);
 
         useEffect(() => {
-            setItemTagList(itemTags)
+            setItemTagList(itemTags);
         }, [itemTags])
+
+        useEffect(() => {
+            setAddStatus(false);
+        }, [addMode])
 
         const handleClick = (itemTag: ItemTag) => {
             const tag = itemTag.tag;

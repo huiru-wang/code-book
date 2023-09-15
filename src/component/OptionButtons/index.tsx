@@ -1,6 +1,7 @@
-import "./style.css"
-import { GlobalContext } from '../../Context'
+import "./style.css";
+import { GlobalContext } from '../../Context';
 import { useContext } from "react";
+import { DataType } from "../types";
 const { ipcRenderer } = window.require('electron');
 
 export const OptionButtons = () => {
@@ -28,7 +29,7 @@ export const OptionButtons = () => {
             "showMode": showMode,
             "singleMode": singleMode
         }
-        ipcRenderer.send('flush-settings', JSON.stringify(settings));
+        ipcRenderer.send('flush-data', DataType.SETTINGS, JSON.stringify(settings));
     }
 
     const handleAddMode = (e: React.MouseEvent<HTMLLabelElement, MouseEvent>) => {
