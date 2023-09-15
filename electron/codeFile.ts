@@ -128,7 +128,6 @@ export const flushData = (dataType: DataType, data: string) => {
             console.log("Data Not Supported");
             break;
     }
-    fs.writeFile(path, data, (_) => {
-    });
+    fs.writeFileSync(path, data);
     console.log("flush code file");
 }

@@ -61,12 +61,13 @@ function App() {
     }
   }
 
-
+  // add tag
   const addNewTag = (newTag: string): void => {
     if (newTag !== '' && newTag !== undefined) {
       const newTagItem: ItemTag = { tag: newTag, selected: false }
-      setAllTags(preTags => [...preTags, newTagItem]);
-      const tags: string[] = allTags.map(tagItem => tagItem.tag);
+      const all = [...allTags, newTagItem];
+      setAllTags(all);
+      const tags: string[] = all.map(tagItem => tagItem.tag);
       ipcRenderer.send('flush-data', DataType.TAG, JSON.stringify(tags));
     }
   }
@@ -82,9 +83,11 @@ function App() {
       itemValue: itemValue,
       tag: selectedTag,
     };
-    setCodeData(preData => [...preData, newCodeItem]);
-    setAllCodeData(preData => [...preData, newCodeItem]);
-    ipcRenderer.send('flush-data', DataType.CODE, JSON.stringify(allCodeData));
+    const newCodeData = [...codeData, newCodeItem];
+    const newAllCodeData = [...allCodeData, newCodeItem];
+    setCodeData(newCodeData);
+    setAllCodeData(newAllCodeData);
+    ipcRenderer.send('flush-data', DataType.CODE, JSON.stringify(newAllCodeData));
   }
 
   // clear one code item
