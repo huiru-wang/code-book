@@ -1,6 +1,6 @@
 # code-book
 
-React初学项目；可用于日常使用；
+🧑‍💻 TS + React + Electron 初学项目；可用于日常简单管理Key-Value；
 
 ## 👋Introduction
 - code-book 不对数据进行加密；不作为一个安全数据存储；仅用于本地便捷存储和查询；
