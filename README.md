@@ -6,6 +6,8 @@
 - code-book 不对数据进行加密；不作为一个安全数据存储；仅用于本地便捷存储和查询；
 - 默认自动创建文件：`user_dir/.codebook/code.json`、`user_dir/.codebook/tag.json`、`user_dir/.codebook/settings.json`
 
+![](./public/Snipaste.png)
+
 ## 🔧Quickstart
 1. [Windows - Realase](https://github.com/huiru-wang/code-book/releases/tag/v0.0.2)
 2. 本地启动
